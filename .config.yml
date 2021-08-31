@@ -1,0 +1,11 @@
+user: bdwyertech
+secrets:
+  - name: DOCKERHUB_TOKEN
+    aliases:
+      - DOCKER_PASSWORD
+      - DOCKERHUB_KEY
+    value: abc123
+  - name: DOCKERHUB_USERNAME
+    aliases:
+      - DOCKER_USERNAME
+    value: abc123
