@@ -2,7 +2,7 @@
 //
 // GitHub Secret Rotator
 //
-// Copyright © 2021 Brian Dwyer - Intelligent Digital Services. All rights reserved.
+// Copyright © 2026 Brian Dwyer - Intelligent Digital Services. All rights reserved.
 //
 
 package main
@@ -13,10 +13,11 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"slices"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/google/go-github/v38/github"
+	"github.com/google/go-github/v82/github"
 	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v3"
 )
@@ -64,12 +65,12 @@ func main() {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
-	client := github.NewClient(tc)
+	client := github.NewClient(tc) //.WithAuthToken(os.Getenv("GITHUB_API_KEY"))
 
 	var allRepos []*github.Repository
-	opt := &github.RepositoryListOptions{ListOptions: github.ListOptions{PerPage: 100}}
+	opt := &github.RepositoryListByUserOptions{ListOptions: github.ListOptions{PerPage: 100}}
 	for {
-		repos, resp, err := client.Repositories.List(ctx, config.User, opt)
+		repos, resp, err := client.Repositories.ListByUser(ctx, config.User, opt)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -96,11 +97,9 @@ func main() {
 				var value string
 				present := func() bool {
 					for _, secret := range config.Secrets {
-						for _, val := range append(secret.Aliases, secret.Name) {
-							if s.Name == val {
-								value = secret.Value
-								return true
-							}
+						if slices.Contains(append(secret.Aliases, secret.Name), s.Name) {
+							value = secret.Value
+							return true
 						}
 					}
 					return false
